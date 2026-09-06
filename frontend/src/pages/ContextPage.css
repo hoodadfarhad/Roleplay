@@ -153,6 +153,12 @@
     border-color: #6366f1;
     box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
   }
+
+  #resume,
+  #job-url {
+    margin-right: 36px;
+    width: calc(100% - 36px);
+  }
   
   /* Error */
   
@@ -201,6 +207,12 @@
     .context-page__form {
       padding: 24px;
       border-radius: 20px;
+    }
+
+    #resume,
+    #job-url {
+      margin-right: 24px;
+      width: calc(100% - 24px);
     }
   
     .context-page__header h1 {

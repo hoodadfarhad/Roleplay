@@ -41,20 +41,38 @@ function ContextPage() {
     setResumeFile(null);
   };
 
-  const handleStartInterview = (event: FormEvent<HTMLFormElement>) => {
+  const handleStartInterview = async (
+    event: FormEvent<HTMLFormElement>
+  ) => {
     event.preventDefault();
-
+  
     if (!canStartInterview) {
       return;
     }
-
-    // Backend integration will go here later.
-    // 1. Upload resume
-    // 2. Send job posting URL
-    // 3. Receive interview/session ID
-    // 4. Navigate to interview
-
-    navigate("/interview");
+  
+    try {
+      const formData = new FormData();
+  
+      formData.append("resume", resumeFile);
+      formData.append("job_posting_url", jobUrl);
+  
+      const response = await fetch("http://localhost:8000/learn_context", {
+        method: "POST",
+        body: formData,
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to start interview");
+      }
+  
+      const data = await response.json();
+  
+      console.log("Backend response:", data);
+  
+      navigate("/interview");
+    } catch (error) {
+      console.error("Error starting interview:", error);
+    }
   };
 
   return (
