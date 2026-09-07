@@ -22,21 +22,14 @@ const InterviewPage = () => {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const recognitionRef = useRef<any>(null);
 
-  /*
-   * Automatically scroll to the newest message.
-   */
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({
       behavior: "smooth",
     });
   }, [messages]);
 
-  /*
-   * Start the mock interview.
-   *
-   * Later, this is where we can call your FastAPI endpoint
-   * to initialize the interview session.
-   */
+
   const handleStartInterview = () => {
     setStarted(true);
 
@@ -107,13 +100,7 @@ const InterviewPage = () => {
     }, 700);
   };
 
-  /*
-   * Voice input
-   *
-   * Uses the browser's Web Speech API.
-   *
-   * Chrome/Edge generally have the best support.
-   */
+
   const toggleVoiceInput = () => {
     const speechWindow = window as typeof window & {
       SpeechRecognition?: any;
@@ -191,9 +178,7 @@ const InterviewPage = () => {
     }
   };
 
-  /*
-   * Landing screen
-   */
+
   if (!started) {
     return (
       <main className="interview-page interview-start">
@@ -239,9 +224,6 @@ const InterviewPage = () => {
     );
   }
 
-  /*
-   * Interview chat
-   */
   return (
     <main className="interview-page">
       <div className="interview-container">
