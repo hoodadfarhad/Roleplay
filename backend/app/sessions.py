@@ -18,7 +18,7 @@ def create_session(
         "resume": resume_text,
         "job_description": job_description,
     }
-
+    print(sessions)
     return session_id
 
 

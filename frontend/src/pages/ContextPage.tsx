@@ -8,7 +8,6 @@ function ContextPage() {
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [jobUrl, setJobUrl] = useState("");
   const [error, setError] = useState("");
-
   const canStartInterview =
     resumeFile !== null && jobUrl.trim().length > 0;
 
@@ -68,8 +67,11 @@ function ContextPage() {
       const data = await response.json();
   
       console.log("Backend response:", data);
-  
-      navigate("/interview");
+      navigate("/interview", {
+        state: {
+          session_id: data.session_id
+        }
+      });
     } catch (error) {
       console.error("Error starting interview:", error);
     }

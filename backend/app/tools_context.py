@@ -73,7 +73,7 @@ async def extract_job_description(url: str) -> str:
     text = clean_text(soup.get_text(separator="\n"))
 
     # LinkedIn-specific extraction
-    start_marker = "Summary"
+    start_marker = "Apply"
     end_markers = [
         "Show more"
     ]

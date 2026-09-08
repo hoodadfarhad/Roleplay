@@ -1,6 +1,7 @@
 from fastapi import FastAPI, File, Form, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from app.tools_context import extract_pdf_text, extract_job_description
+from app.sessions import create_session
 
 app = FastAPI(title="RolePlay")
 
@@ -36,9 +37,14 @@ async def learn_context(
     print("--------------------------------")
     print(job_description_text)
     print("--------------------------------")
-    # TODO: create new session and return session id after learning context
-    return {
-    "status": "context received",
-    "resume": resume.filename or "",
-    "job_posting_url": job_posting_url,
-}
+    session_id = create_session(resume_text, job_description_text)  
+    return {"session_id": session_id}
+
+
+@app.post("/interview/chat")
+async def interview_chat(
+    data: dict[str, str],
+) -> dict[str, str]:
+    session_id = data["session_id"]
+    message = data["message"]
+    return {"message": "Hello, world! from session " + session_id + " with message " + message } 

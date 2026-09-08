@@ -5,6 +5,7 @@ import {
 } from "react";
 import type { FormEvent } from "react";
 import "./InterviewPage.css";
+import { useLocation } from "react-router-dom";
 
 type Message = {
   id: number;
@@ -16,7 +17,7 @@ const InterviewPage = () => {
   const [started, setStarted] = useState(false);
   const [input, setInput] = useState("");
   const [isListening, setIsListening] = useState(false);
-
+  const { session_id } = useLocation().state as { session_id: string };
   const [messages, setMessages] = useState<Message[]>([]);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -58,7 +59,7 @@ const InterviewPage = () => {
    *   history
    * }
    */
-  const handleSendMessage = (event?: FormEvent) => {
+  const handleSendMessage = async (event?: FormEvent) => {
     event?.preventDefault();
 
     const trimmedInput = input.trim();
@@ -77,6 +78,24 @@ const InterviewPage = () => {
       ...previous,
       userMessage,
     ]);
+    console.log("from interview page send message!!!!!!!!!!!!!!!!!: "+session_id);
+    const response = await fetch("http://localhost:8000/interview/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        session_id: session_id,
+        message: trimmedInput,
+      }),
+    });
+
+    const data = await response.json();
+
+    console.log(data);
+
+    
+    
 
     setInput("");
 
