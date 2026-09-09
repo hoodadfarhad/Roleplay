@@ -37,7 +37,7 @@ def get_interview_state_tool(session_id: str):
 
 memory = MemorySaver()
 
-MAX_QUESTION_COUNT = 5
+MAX_QUESTION_COUNT = 15
 INTERVIEW_CLOSING_MESSAGE = (
     "Sorry, there's another meeting I have to join. It was a pleasure talking to you."
 )

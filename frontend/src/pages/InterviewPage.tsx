@@ -5,7 +5,7 @@ import {
 } from "react";
 import type { FormEvent } from "react";
 import "./InterviewPage.css";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Message = {
   id: number;
@@ -20,6 +20,11 @@ const InterviewPage = () => {
   const session_id = useLocation().state?.session_id as string | undefined;
   const [messages, setMessages] = useState<Message[]>([]);
   const [error, setError] = useState("");
+  const [isInterviewComplete, setIsInterviewComplete] = useState(false);
+  const navigate = useNavigate();
+  const questionCount = messages.filter(
+    (message) => message.role === "assistant",
+  ).length;
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const recognitionRef = useRef<any>(null);
@@ -52,6 +57,10 @@ const InterviewPage = () => {
     const trimmedInput = input.trim();
 
     if (!trimmedInput) {
+      return;
+    }
+
+    if (isInterviewComplete) {
       return;
     }
 
@@ -100,6 +109,11 @@ const InterviewPage = () => {
         ...previous,
         assistantMessage,
       ]);
+
+      if (data.is_complete) {
+        setIsInterviewComplete(true);
+        window.setTimeout(() => navigate("/feedback"), 5000);
+      }
     } catch (error) {
       setError(
         error instanceof Error
@@ -170,11 +184,6 @@ const InterviewPage = () => {
     recognition.start();
   };
 
-  /*
-   * Press Enter to send.
-   *
-   * Shift + Enter creates a new line.
-   */
   const handleKeyDown = (
     event: React.KeyboardEvent<HTMLTextAreaElement>
   ) => {
@@ -249,7 +258,7 @@ const InterviewPage = () => {
           </div>
 
           <div className="question-progress">
-            Question {Math.max(messages.length, 1)}
+            Question {Math.max(questionCount, 1)}
           </div>
         </header>
 
@@ -310,6 +319,7 @@ const InterviewPage = () => {
                 : "Type your answer..."
             }
             rows={1}
+            disabled={isInterviewComplete}
           />
 
           <button
@@ -330,7 +340,7 @@ const InterviewPage = () => {
           <button
             type="submit"
             className="send-button"
-            disabled={!input.trim()}
+            disabled={!input.trim() || isInterviewComplete}
             aria-label="Send message"
           >
             ↑

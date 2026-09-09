@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException, status
 from app.models.interview import InterviewMessage
 from app.services.interview_service import chat
 from app.sessions import SessionNotFoundError
+from app.agents.interviewer_agent import INTERVIEW_CLOSING_MESSAGE
 
 
 router = APIRouter()
@@ -11,7 +12,7 @@ router = APIRouter()
 @router.post("/interview/chat")
 async def interview_chat(
     data: InterviewMessage,
-) -> dict[str, str]:
+) -> dict[str, str | bool]:
 
     try:
         response = await chat(
@@ -24,4 +25,7 @@ async def interview_chat(
             detail="Interview session not found. Please start a new interview.",
         ) from None
 
-    return {"message": response}
+    return {
+        "message": response,
+        "is_complete": response == INTERVIEW_CLOSING_MESSAGE,
+    }

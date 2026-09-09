@@ -10,7 +10,8 @@ class InterviewState(TypedDict):
     current_topic: str
 
 interview_state: InterviewState = {
-    "question_count": 0,
+
+    "question_count": 1,
     "followup_count": 0,
     "current_topic": "",
 }
@@ -33,8 +34,6 @@ def create_session(
     sessions[session_id] = {
         "resume": resume_text,
         "job_description": job_description,
-        # Each interview needs its own mutable state. Reusing the module-level
-        # dictionary would make separate sessions affect one another.
         "interview_state": interview_state.copy(),
     }
     
@@ -50,6 +49,7 @@ def get_session(session_id: str) -> Dict[str, Any] | None:
 
 def state_updater(question_type: str, session_id: str, topic: str | None = None,):
     session = get_session(session_id)
+    print(session["interview_state"])
     if session is None:
         raise SessionNotFoundError(session_id)
 
