@@ -1,3 +1,5 @@
+import asyncio
+
 from langchain_openai import ChatOpenAI
 from langchain.agents import create_agent
 from langgraph.checkpoint.memory import MemorySaver
@@ -35,10 +37,22 @@ def get_interview_state_tool(session_id: str):
 
 memory = MemorySaver()
 
+MAX_QUESTION_COUNT = 5
+INTERVIEW_CLOSING_MESSAGE = (
+    "Sorry, there's another meeting I have to join. It was a pleasure talking to you."
+)
+
 async def interview_agent(
     session_id: str,
     message: str,
 ) -> str:
+    session = get_session(session_id)
+    if session is None:
+        raise SessionNotFoundError(session_id)
+
+    if session["interview_state"]["question_count"] >= MAX_QUESTION_COUNT:
+        await asyncio.sleep(3)
+        return INTERVIEW_CLOSING_MESSAGE
 
     context = context_getter(session_id)
     interviewer = create_agent(

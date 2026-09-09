@@ -53,7 +53,7 @@ function ContextPage() {
       const formData = new FormData();
   
       formData.append("resume", resumeFile);
-      formData.append("job_posting_url", jobUrl);
+      formData.append("job_posting_url", jobUrl.trim());
   
       const response = await fetch("http://localhost:8000/learn_context", {
         method: "POST",
