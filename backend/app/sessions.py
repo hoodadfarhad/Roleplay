@@ -1,7 +1,23 @@
 import uuid
 from typing import Dict, Any
+from typing import TypedDict
 
 sessions: Dict[str, Dict[str, Any]] = {}
+
+class InterviewState(TypedDict):
+    question_count: int
+    followup_count: int
+    current_topic: str
+
+interview_state: InterviewState = {
+    "question_count": 0,
+    "followup_count": 0,
+    "current_topic": "",
+}
+
+
+class SessionNotFoundError(Exception):
+    """Raised when a request refers to an interview session that no longer exists."""
 
 
 def create_session(
@@ -17,8 +33,11 @@ def create_session(
     sessions[session_id] = {
         "resume": resume_text,
         "job_description": job_description,
+        # Each interview needs its own mutable state. Reusing the module-level
+        # dictionary would make separate sessions affect one another.
+        "interview_state": interview_state.copy(),
     }
-    print(sessions)
+    
     return session_id
 
 
@@ -29,6 +48,19 @@ def get_session(session_id: str) -> Dict[str, Any] | None:
 
     return sessions.get(session_id)
 
+def state_updater(question_type: str, session_id: str, topic: str | None = None,):
+    session = get_session(session_id)
+    if session is None:
+        raise SessionNotFoundError(session_id)
+
+    state = session["interview_state"]
+    state["question_count"] += 1
+    if question_type == "follow_up":
+        state["followup_count"] += 1
+
+    else:
+        state["followup_count"] = 0
+        state["current_topic"] = topic
 
 def delete_session(session_id: str) -> None:
     """
