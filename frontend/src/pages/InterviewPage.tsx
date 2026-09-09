@@ -17,8 +17,9 @@ const InterviewPage = () => {
   const [started, setStarted] = useState(false);
   const [input, setInput] = useState("");
   const [isListening, setIsListening] = useState(false);
-  const { session_id } = useLocation().state as { session_id: string };
+  const session_id = useLocation().state?.session_id as string | undefined;
   const [messages, setMessages] = useState<Message[]>([]);
+  const [error, setError] = useState("");
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const recognitionRef = useRef<any>(null);
@@ -44,27 +45,18 @@ const InterviewPage = () => {
     ]);
   };
 
-  /*
-   * Send a text response.
-   *
-   * For now we only store the conversation locally.
-   *
-   * Later this function can:
-   *
-   * POST /interview/chat
-   *
-   * {
-   *   session_id,
-   *   message,
-   *   history
-   * }
-   */
+  
   const handleSendMessage = async (event?: FormEvent) => {
     event?.preventDefault();
 
     const trimmedInput = input.trim();
 
     if (!trimmedInput) {
+      return;
+    }
+
+    if (!session_id) {
+      setError("Your interview session is unavailable. Please start a new interview.");
       return;
     }
 
@@ -78,45 +70,43 @@ const InterviewPage = () => {
       ...previous,
       userMessage,
     ]);
-    console.log("from interview page send message!!!!!!!!!!!!!!!!!: "+session_id);
-    const response = await fetch("http://localhost:8000/interview/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        session_id: session_id,
-        message: trimmedInput,
-      }),
-    });
-
-    const data = await response.json();
-
-    console.log(data);
-
-    
-    
 
     setInput("");
 
-    /*
-     * Temporary mock response.
-     *
-     * Replace this with your FastAPI call later.
-     */
-    setTimeout(() => {
+    try {
+      const response = await fetch("http://localhost:8000/interview/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          session_id,
+          message: trimmedInput,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.detail ?? "Unable to continue the interview.");
+      }
+
       const assistantMessage: Message = {
         id: Date.now() + 1,
         role: "assistant",
-        content:
-          "Thanks. That's helpful. Can you tell me about a challenging technical problem you've worked on and how you approached solving it?",
+        content: data.message,
       };
 
       setMessages((previous) => [
         ...previous,
         assistantMessage,
       ]);
-    }, 700);
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Unable to continue the interview.",
+      );
+    }
   };
 
 
@@ -265,6 +255,7 @@ const InterviewPage = () => {
 
         {/* Chat */}
         <section className="chat-container">
+          {error && <p role="alert">{error}</p>}
           <div className="messages">
 
             {messages.map((message) => (
