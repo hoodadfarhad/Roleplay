@@ -1,3 +1,5 @@
+from typing import Any
+
 from fastapi import APIRouter, HTTPException, status
 
 from app.models.interview import InterviewMessage
@@ -12,10 +14,10 @@ router = APIRouter()
 @router.post("/interview/chat")
 async def interview_chat(
     data: InterviewMessage,
-) -> dict[str, str | bool]:
+) -> dict[str, Any]:
 
     try:
-        response = await chat(
+        response, feedback = await chat(
             session_id=data.session_id,
             message=data.message,
         )
@@ -28,4 +30,5 @@ async def interview_chat(
     return {
         "message": response,
         "is_complete": response == INTERVIEW_CLOSING_MESSAGE,
+        "feedback": feedback.model_dump() if feedback else None,
     }
